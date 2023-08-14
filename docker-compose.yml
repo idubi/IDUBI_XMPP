@@ -1,0 +1,44 @@
+version: '3'
+services:
+  postgres:
+      image: postgres:latest
+      container_name: xmpp-postgres
+      environment:
+        POSTGRES_DB: 'XMPPDB'
+        POSTGRES_USER: 'xmpp'
+        POSTGRES_PASSWORD: 'passw0rd'
+      ports:
+        - "5432:5432"
+      volumes:
+        - ./pgdata:/var/lib/postgresql/data
+  postgre-client:
+    image: dpage/pgadmin4
+    container_name: dbclient
+    environment: 
+      PGADMIN_DEFAULT_EMAIL: 'shobapp@gmail.com'
+      PGADMIN_DEFAULT_PASSWORD: 'passw0rd'
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: 'True'
+      PGADMIN_CONFIG_CONSOLE_LOG_LEVEL: '10'
+    ports:
+      - "8082:80"
+  redis-server:
+    image: redis:latest
+    container_name: redis-server
+    ports:
+      - "6379:6379"
+  xmpp-server:
+    image: ejabberd/ecs
+    container_name: xmpp-server
+    volumes:
+      - './ejabberd.yml:/home/ejabberd/conf/ejabberd.yml'
+      - './xmppsql:/home/ejabberd/database'
+      - './xmppshare:/home/ejabberd/share'
+    restart: always
+    ports:
+      - 5443:5443
+      - 5280:5280
+    depends_on:
+      - postgres
+
+
+
